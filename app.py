@@ -61,7 +61,7 @@ if uploaded_file and api_key:
         with st.spinner("THE MAJOR IS SCREAMING AT YOUR MARGINS..."):
             try:
                 response = openai.ChatCompletion.create(
-                    model="gpt-4",
+                    model="gpt-4o",
                     messages=[
                         {"role": "system", "content": SYSTEM_PROMPT},
                         {"role": "user", "content": f"CRITIQUE THIS CV NOW: {cv_text}"}
