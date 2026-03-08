@@ -1,6 +1,6 @@
 import streamlit as st
 import tempfile
-import openai
+from openai import OpenAI
 from fpdf import FPDF
 from PyPDF2 import PdfReader
 
@@ -72,7 +72,8 @@ GLOBAL RULES:
 uploaded_file = st.file_uploader("DROP YOUR CV HERE (PDF ONLY)", type="pdf")
 
 if uploaded_file and api_key:
-    openai.api_key = api_key
+    # THIS IS THE NEW OPENAI SYNTAX
+    client = OpenAI(api_key=api_key)
     
     # Extract text from PDF
     reader = PdfReader(uploaded_file)
@@ -83,7 +84,8 @@ if uploaded_file and api_key:
     if st.button("COMMENCE INSPECTION"):
         with st.spinner("THE MAJOR IS SCREAMING AT YOUR MARGINS..."):
             try:
-                response = openai.ChatCompletion.create(
+                # THIS IS THE NEW OPENAI SYNTAX
+                response = client.chat.completions.create(
                     model="gpt-4o",
                     messages=[
                         {"role": "system", "content": SYSTEM_PROMPT},
