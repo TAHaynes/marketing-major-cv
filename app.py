@@ -1,4 +1,32 @@
 import streamlit as st
+import tempfile
+from fpdf import FPDF
+
+def generate_pdf(report_text):
+    pdf = FPDF()
+    pdf.add_page()
+    
+    # Haynes & Haynes Ltd Header
+    pdf.set_font("Arial", 'B', 14)
+    pdf.cell(200, 10, txt="The Inspection Report: Haynes & Haynes Ltd", ln=True, align='C')
+    pdf.ln(10)
+    
+    # Body Text
+    pdf.set_font("Arial", size=11)
+    # Stripping out the markdown bolding asterisks so it reads cleanly in the PDF
+    clean_text = report_text.replace('**', '')
+    
+    # fpdf sometimes struggles with complex AI characters, so we encode/decode to keep it safe
+    safe_text = clean_text.encode('latin-1', 'replace').decode('latin-1')
+    pdf.multi_cell(0, 8, txt=safe_text)
+    
+    # Create a temporary file to hold the PDF data
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+        pdf.output(tmp.name)
+        with open(tmp.name, "rb") as f:
+            pdf_bytes = f.read()
+            
+    return pdf_bytes
 import openai
 from PyPDF2 import PdfReader
 
