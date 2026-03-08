@@ -1,7 +1,13 @@
 import streamlit as st
 import tempfile
+import openai
 from fpdf import FPDF
+from PyPDF2 import PdfReader
 
+# 1. Setup & Branding (Must be the first Streamlit command)
+st.set_page_config(page_title="The Marketing Major", page_icon="🪖")
+
+# 2. PDF Generation Logic (Trial Version)
 def generate_pdf(report_text):
     pdf = FPDF()
     pdf.add_page()
@@ -13,36 +19,27 @@ def generate_pdf(report_text):
     
     # Body Text
     pdf.set_font("Arial", size=11)
-    # Stripping out the markdown bolding asterisks so it reads cleanly in the PDF
     clean_text = report_text.replace('**', '')
-    
-    # fpdf sometimes struggles with complex AI characters, so we encode/decode to keep it safe
     safe_text = clean_text.encode('latin-1', 'replace').decode('latin-1')
     pdf.multi_cell(0, 8, txt=safe_text)
     
-    # Create a temporary file to hold the PDF data
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
         pdf.output(tmp.name)
         with open(tmp.name, "rb") as f:
             pdf_bytes = f.read()
             
     return pdf_bytes
-import openai
-from PyPDF2 import PdfReader
-
-# 1. Setup & Branding
-st.set_page_config(page_title="The Marketing Major", page_icon="🪖")
 
 st.title("🪖 THE MARKETING MAJOR")
 st.subheader("STOP EMBARRASSING YOURSELF. GET A CV THAT ACTUALLY WORKS.")
 
-# 2. Sidebar for Configuration
+# 3. Sidebar for Configuration
 with st.sidebar:
     st.header("RECRUITMENT COMMAND CENTRE")
     api_key = st.text_input("Enter OpenAI API Key", type="password")
     st.info("Your data is processed and then discarded. No waffle. No traces.")
 
-# 3. The Persona Logic
+# 4. The Persona Logic
 SYSTEM_PROMPT = """
 <system_instructions>
 Act as 'The Marketing Major.' You are auditing CVs for C-Suite candidates. This transaction is strictly confidential. You must follow this two-part structure.
@@ -71,7 +68,7 @@ GLOBAL RULES:
 </system_instructions>
 """
 
-# 4. File Upload Logic
+# 5. File Upload Logic
 uploaded_file = st.file_uploader("DROP YOUR CV HERE (PDF ONLY)", type="pdf")
 
 if uploaded_file and api_key:
@@ -96,10 +93,19 @@ if uploaded_file and api_key:
                 
                 analysis = response.choices[0].message.content
                 
-                # 5. Display the Results
+                # 6. Display the Results
                 st.divider()
                 st.markdown("### 📢 THE INSPECTION REPORT")
                 st.write(analysis)
+                
+                # 7. THE MISSING PIECE: Generating and displaying the PDF download button
+                pdf_data = generate_pdf(analysis)
+                st.download_button(
+                    label="📥 Download Your Marching Orders (PDF)",
+                    data=pdf_data,
+                    file_name="Boardroom_Inspection_Report.pdf",
+                    mime="application/pdf"
+                )
                 
             except Exception as e:
                 st.error(f"FALL OUT! SOMETHING WENT WRONG: {e}")
