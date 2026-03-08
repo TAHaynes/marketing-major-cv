@@ -6,9 +6,9 @@ def generate_pdf(report_text):
     pdf = FPDF()
     pdf.add_page()
     
-    # Haynes & Haynes Ltd Header
+    # Updated Header for Trial Version
     pdf.set_font("Arial", 'B', 14)
-    pdf.cell(200, 10, txt="The Inspection Report: Haynes & Haynes Ltd", ln=True, align='C')
+    pdf.cell(200, 10, txt="The Inspection Report: The Marketing Major", ln=True, align='C')
     pdf.ln(10)
     
     # Body Text
